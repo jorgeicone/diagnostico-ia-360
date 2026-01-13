@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050810">
+    <title>Diagnóstico IA 360° | IA LABS - ICONE Academy</title>
+    
+    <!-- SCRIPTS DE REACT 18 -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #05445e;
+            --primary: #147e93;
+            --primary-medium: #0292b7;
+            --primary-light: #1ac8db;
+            --accent-light: #75e6da;
+            --accent-lighter: #99dfec;
+            --white: #ebfdff;
+            --white-pure: #ffffff;
+            --gray: #616161;
+            --gray-light: #9e9e9e;
+            --gray-dark: #8c756a;
+            --yellow: #f9c911;
+            --green: #359830;
+            --bg-dark: #0a0e1a;
+            --bg-darker: #050810;
+            --gradient-primary: linear-gradient(135deg, #147e93 0%, #1ac8db 100%);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-darker);
+            color: var(--white);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* Neural Network Background */
+        .neural-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-darker) 100%);
+        }
+
+        .neural-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+        }
+
+        .neural-background::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(20, 126, 147, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(26, 200, 219, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(5, 68, 94, 0.1) 0%, transparent 50%);
+            animation: pulse-neural 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-neural {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float-particle 15s infinite ease-in-out;
+            box-shadow: 0 0 8px rgba(26, 200, 219, 0.6);
+        }
+
+        @keyframes float-particle {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.4;
+            }
+            25% { 
+                transform: translate(80px, -80px) scale(1.3);
+                opacity: 0.6;
+            }
+            50% { 
+                transform: translate(-40px, 40px) scale(0.7);
+                opacity: 0.3;
+            }
+            75% { 
+                transform: translate(120px, 80px) scale(1.1);
+                opacity: 0.5;
+            }
+        }
+
+        /* Container */
+        .app-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(26, 200, 219, 0.2);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(26, 200, 219, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(26, 200, 219, 0.1), 
+                transparent);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .logo-3d {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1ac8db 0%, #147e93 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 
+                0 20px 60px rgba(26, 200, 219, 0.4),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.3),
+                inset 0 2px 10px rgba(255, 255, 255, 0.1);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-3d:hover {
+            transform: perspective(1000px) rotateX(0deg) scale(1.05);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .main-title {
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, #75e6da 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.8rem;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 40px rgba(117, 230, 218, 0.3);
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: var(--accent-lighter);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .creator-tag {
+            font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+            color: rgba(117, 230, 218, 0.6);
+            font-weight: 400;
+            margin-top: 0.8rem;
+        }
+
+        /* Progress Circle */
+        .progress-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: clamp(140px, 30vw, 180px);
+            height: clamp(140px, 30vw, 180px);
+            margin: 0 auto 1rem;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 20px rgba(26, 200, 219, 0.4));
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .progress-label {
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            color: var(--accent-lighter);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Question Card */
+        .question-card {
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .question-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(26, 200, 219, 0.15);
+            border: 1px solid rgba(26, 200, 219, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .question-title {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .question-subtitle {
+            font-size: clamp(0.85rem, 2vw, 1.1rem);
+            color: var(--accent-lighter);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Options */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-modern {
+            background: rgba(10, 20, 35, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(26, 200, 219, 0.15);
+            border-radius: 16px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-height: 80px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .option-modern::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(26, 200, 219, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+
+        .option-modern:hover {
+            transform: translateX(4px);
+            border-color: rgba(26, 200, 219, 0.5);
+            box-shadow: 
+                0 8px 24px rgba(26, 200, 219, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .option-modern:active {
+            transform: scale(0.98);
+        }
+
+        .option-modern:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .option-modern.selected {
+            background: linear-gradient(135deg, rgba(26, 200, 219, 0.25) 0%, rgba(20, 126, 147, 0.25) 100%);
+            border-color: var(--primary-light);
+            box-shadow: 
+                0 0 30px rgba(26, 200, 219, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .option-icon {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            min-width: clamp(40px, 8vw, 50px);
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-label {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        .option-text {
+            font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+            color: var(--accent-lighter);
+            line-height: 1.5;
+        }
+
+        .option-check {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .option-modern.selected .option-check {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 15px rgba(26, 200, 219, 0.6);
+        }
+
+        .option-modern.selected .option-check::after {
+            content: '✓';
+            color: var(--bg-darker);
+            font-weight: 900;
+            font-size: 1rem;
+        }
+
+        /* Buttons */
+        .btn-holographic {
+            position: relative;
+            padding: clamp(1rem, 2vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem);
+            border: none;
+            border-radius: 12px;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            box-shadow: 
+                0 8px 32px rgba(26, 200, 219, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            width: 100%;
+            min-height: 56px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .btn-holographic::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn-holographic:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 40px rgba(26, 200, 219, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-holographic:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-holographic:hover:not(:disabled)::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-holographic:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-direction: column;
+        }
+
+        @media (min-width: 640px) {
+            .button-group {
+                flex-direction: row;
+            }
+            
+            .button-group .btn-holographic {
+                width: auto;
+                flex: 1;
+            }
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            text-align: center;
+            padding: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .welcome-visual {
+            width: clamp(150px, 30vw, 200px);
+            height: clamp(150px, 30vw, 200px);
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(4rem, 10vw, 6rem);
+            box-shadow: 
+                0 20px 60px rgba(26, 200, 219, 0.4),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                inset 0 5px 20px rgba(255, 255, 255, 0.1);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 
+                    0 20px 60px rgba(26, 200, 219, 0.4),
+                    inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                    inset 0 5px 20px rgba(255, 255, 255, 0.1);
+            }
+            50% { 
+                box-shadow: 
+                    0 20px 80px rgba(26, 200, 219, 0.6),
+                    0 0 60px rgba(26, 200, 219, 0.4),
+                    inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                    inset 0 5px 20px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .welcome-title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .welcome-text {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--accent-lighter);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: rgba(10, 20, 35, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(26, 200, 219, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 32px rgba(26, 200, 219, 0.3);
+            border-color: rgba(26, 200, 219, 0.4);
+        }
+
+        .feature-icon {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            margin-bottom: 0.8rem;
+            filter: drop-shadow(0 4px 12px rgba(26, 200, 219, 0.4));
+        }
+
+        .feature-title {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+            color: var(--accent-lighter);
+            line-height: 1.5;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            padding: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .score-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .score-circle {
+            width: clamp(200px, 40vw, 280px);
+            height: clamp(200px, 40vw, 280px);
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .score-circle svg {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 30px rgba(26, 200, 219, 0.5));
+        }
+
+        .score-value-large {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(3.5rem, 10vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-label {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            color: var(--accent-lighter);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            white-space: nowrap;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1.5rem, 3vw, 2rem);
+            background: linear-gradient(135deg, var(--yellow) 0%, #ffd54f 100%);
+            color: var(--primary-dark);
+            border-radius: 50px;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 8px 32px rgba(249, 201, 17, 0.4);
+            margin-bottom: 2rem;
+        }
+
+        .urgency-banner {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(249, 201, 17, 0.2) 100%);
+            border: 2px solid rgba(249, 201, 17, 0.5);
+            border-radius: 16px;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .urgency-title {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .urgency-score {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            color: var(--yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        .urgency-text {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--accent-lighter);
+            line-height: 1.6;
+        }
+
+        .next-steps-card {
+            background: rgba(10, 20, 35, 0.8);
+            border: 2px solid var(--primary-light);
+            border-radius: 20px;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            margin: 2rem 0;
+        }
+
+        .next-steps-title {
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .step-item {
+            background: rgba(26, 200, 219, 0.08);
+            border-left: 4px solid var(--primary-light);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: var(--white);
+            width: clamp(28px, 6vw, 36px);
+            height: clamp(28px, 6vw, 36px);
+            border-radius: 50%;
+            text-align: center;
+            line-height: clamp(28px, 6vw, 36px);
+            font-weight: 800;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            margin-right: 1rem;
+        }
+
+        .step-content {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* CTA */
+        .cta-premium {
+            background: linear-gradient(135deg, rgba(26, 200, 219, 0.15) 0%, rgba(20, 126, 147, 0.15) 100%);
+            border: 2px solid var(--primary-light);
+            border-radius: 20px;
+            padding: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2rem);
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .cta-title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .cta-text {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: var(--accent-lighter);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        /* Loading */
+        .loading-premium {
+            text-align: center;
+            padding: clamp(3rem, 6vw, 4rem) clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .loading-orb {
+            width: clamp(120px, 25vw, 150px);
+            height: clamp(120px, 25vw, 150px);
+            margin: 0 auto 2rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            box-shadow: 
+                0 0 60px rgba(26, 200, 219, 0.6),
+                inset 0 0 40px rgba(255, 255, 255, 0.2);
+            animation: pulse-orb 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-orb {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 
+                    0 0 60px rgba(26, 200, 219, 0.6),
+                    inset 0 0 40px rgba(255, 255, 255, 0.2);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 
+                    0 0 100px rgba(26, 200, 219, 0.8),
+                    0 0 60px rgba(26, 200, 219, 0.4),
+                    inset 0 0 40px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        .loading-text {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--white);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-subtext {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--accent-lighter);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem 1rem;
+            font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+            color: rgba(117, 230, 218, 0.5);
+        }
+
+        /* FORM INPUTS */
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid rgba(26, 200, 219, 0.2);
+            background: rgba(10, 20, 35, 0.6);
+            color: white;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(26, 200, 219, 0.5);
+            background: rgba(10, 20, 35, 0.8);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent-lighter);
+            font-weight: 600;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-align: left;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-note {
+            margin-top: 1rem;
+            font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+            color: rgba(117, 230, 218, 0.6);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Neural Network Background -->
+    <div class="neural-background">
+        <canvas class="neural-canvas" id="neuralCanvas"></canvas>
+    </div>
+
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // ⚙️ CONFIGURACIÓN GOOGLE SHEETS - URL YA CONFIGURADA ✅
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwI-mXZhVEXOF2quvEZ5GvIQa50YDCkr0d5pHkEKxr0NyMfewfWX81O0zj6X7Nn-lPw/exec';
+
+        // Función para enviar datos a Google Sheets
+        async function enviarAGoogleSheets(datosUsuario, respuestas, resultados) {
+            const payload = {
+                nombre: datosUsuario.nombre,
+                correo: datosUsuario.correo,
+                celular: datosUsuario.celular,
+                empresa: datosUsuario.empresa,
+                cargo: datosUsuario.cargo,
+                maturityScore: resultados.maturityScore,
+                maturityLevel: resultados.maturityLevel,
+                urgencyScore: resultados.urgencyScore,
+                urgencyLevel: resultados.urgencyLevel,
+                q1: respuestas[1] || 0,
+                q2: respuestas[2] || 0,
+                q3: respuestas[3] || 0,
+                q4: respuestas[4] || 0,
+                q5: respuestas[5] || 0,
+                q6: respuestas[6] || 0,
+                q7: respuestas[7] || 0,
+                q8: respuestas[8] || 0,
+                q9: respuestas[9] || 0,
+                q10: respuestas[10] || 0,
+                q11: respuestas[11] || 0,
+                q12: respuestas[12] || 0,
+                q13: respuestas[13] || 0,
+                q14: respuestas[14] || 0,
+                q15: respuestas[15] || 0
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('✅ Datos enviados a Google Sheets');
+                return true;
+            } catch (error) {
+                console.error('❌ Error enviando datos:', error);
+                return false;
+            }
+        }
+
+        // Generate particles on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const particlesContainer = document.getElementById('particles');
+            if (particlesContainer) {
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 15 + 's';
+                    particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            // Neural network canvas
+            const canvas = document.getElementById('neuralCanvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                const isMobile = window.innerWidth < 768;
+                
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const nodes = [];
+                const nodeCount = isMobile ? 15 : 25;
+
+                for (let i = 0; i < nodeCount; i++) {
+                    nodes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * (isMobile ? 0.2 : 0.3),
+                        vy: (Math.random() - 0.5) * (isMobile ? 0.2 : 0.3)
+                    });
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    nodes.forEach(node => {
+                        node.x += node.vx;
+                        node.y += node.vy;
+
+                        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(26, 200, 219, 0.3)';
+                        ctx.fill();
+
+                        nodes.forEach(otherNode => {
+                            const dx = node.x - otherNode.x;
+                            const dy = node.y - otherNode.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < 150) {
+                                ctx.beginPath();
+                                ctx.moveTo(node.x, node.y);
+                                ctx.lineTo(otherNode.x, otherNode.y);
+                                ctx.strokeStyle = `rgba(26, 200, 219, ${0.15 * (1 - distance / 150)})`;
+                                ctx.lineWidth = 0.5;
+                                ctx.stroke();
+                            }
+                        });
+                    });
+
+                    requestAnimationFrame(animate);
+                }
+
+                animate();
+
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                    }, 250);
+                });
+            }
+        });
+
+        // PREGUNTAS DEL DIAGNÓSTICO
+        const questions = [
+            // MADUREZ DIGITAL (5 × 10 = 50 puntos)
+            {
+                id: 1,
+                category: 'maturity',
+                section: 'Madurez Digital',
+                question: '¿Cómo describes tu nivel actual de digitalización en el trabajo?',
+                subtitle: 'Queremos entender tu punto de partida digital',
+                options: [
+                    { value: 2, label: 'Totalmente Analógico', icon: '📝', text: 'Trabajo principalmente con papel, archivos físicos y procesos manuales' },
+                    { value: 4, label: 'Digitalización Básica', icon: '📧', text: 'Uso email, documentos digitales básicos, pero muchos procesos siguen siendo manuales' },
+                    { value: 6, label: 'Parcialmente Digital', icon: '💻', text: 'Tengo varios procesos digitales pero aún hay muchas tareas manuales' },
+                    { value: 8, label: 'Mayormente Digital', icon: '☁️', text: 'La mayoría de mis procesos son digitales con cloud y colaboración' },
+                    { value: 10, label: 'Completamente Digital', icon: '⚡', text: 'Flujo 100% digital con automatizaciones e integraciones avanzadas' }
+                ]
+            },
+            {
+                id: 2,
+                category: 'maturity',
+                section: 'Madurez Digital',
+                question: '¿Qué herramientas de productividad usas regularmente?',
+                subtitle: 'Esto nos ayuda a entender tu stack actual',
+                options: [
+                    { value: 2, label: 'Herramientas Básicas', icon: '📱', text: 'Solo email, WhatsApp y apps muy básicas' },
+                    { value: 4, label: 'Office Básico', icon: '📊', text: 'Word, Excel, PowerPoint y email' },
+                    { value: 6, label: 'Suite Cloud', icon: '☁️', text: 'Google Workspace o Microsoft 365 completo' },
+                    { value: 8, label: 'Stack Productividad', icon: '🛠️', text: 'Suite completa + herramientas gestión proyectos (Notion, Trello, etc)' },
+                    { value: 10, label: 'Stack Avanzado', icon: '🚀', text: 'Suite + automatizaciones + CRM + integraciones múltiples' }
+                ]
+            },
+            {
+                id: 3,
+                category: 'maturity',
+                section: 'Madurez Digital',
+                question: '¿Cuánto tiempo dedicas diariamente a tareas repetitivas manuales?',
+                subtitle: 'Identificamos oportunidades de automatización',
+                options: [
+                    { value: 2, label: 'Más de 5 horas', icon: '😰', text: 'La mayor parte de mi día son tareas manuales repetitivas' },
+                    { value: 4, label: '3-5 horas', icon: '😓', text: 'Dedico varias horas a copiar, pegar, formatear, organizar manualmente' },
+                    { value: 6, label: '2-3 horas', icon: '⏰', text: 'Un par de horas en tareas repetitivas que podrían automatizarse' },
+                    { value: 8, label: '1-2 horas', icon: '⏱️', text: 'Algunas tareas repetitivas pero ya tengo cierta eficiencia' },
+                    { value: 10, label: 'Menos de 1 hora', icon: '✨', text: 'Ya he automatizado la mayoría de procesos repetitivos' }
+                ]
+            },
+            {
+                id: 4,
+                category: 'maturity',
+                section: 'Madurez Digital',
+                question: '¿Cómo calificas tu capacidad de adoptar nuevas tecnologías?',
+                subtitle: 'Esto determina el ritmo de implementación ideal',
+                options: [
+                    { value: 2, label: 'Me cuesta mucho', icon: '🐢', text: 'Prefiero métodos tradicionales, los cambios tecnológicos me generan resistencia' },
+                    { value: 4, label: 'Lento pero seguro', icon: '🚶', text: 'Me adapto gradualmente pero necesito mucho tiempo y apoyo constante' },
+                    { value: 6, label: 'Ritmo Normal', icon: '🏃', text: 'Me adapto en tiempo razonable con buena documentación y guía' },
+                    { value: 8, label: 'Rápido', icon: '🚀', text: 'Aprendo rápido, me gusta experimentar con nuevas herramientas' },
+                    { value: 10, label: 'Early Adopter', icon: '⚡', text: 'Siempre estoy probando lo último, me apasiona la tecnología' }
+                ]
+            },
+            {
+                id: 5,
+                category: 'maturity',
+                section: 'Madurez Digital',
+                question: '¿Qué presupuesto mensual puedes destinar a herramientas tecnológicas?',
+                subtitle: 'Hay soluciones para todos los presupuestos',
+                options: [
+                    { value: 2, label: 'Muy Limitado', icon: '💵', text: '$0-30 USD/mes - Solo puedo usar herramientas gratuitas o muy económicas' },
+                    { value: 4, label: 'Económico', icon: '💰', text: '$30-100 USD/mes - Puedo invertir en algunas herramientas esenciales' },
+                    { value: 6, label: 'Moderado', icon: '💎', text: '$100-250 USD/mes - Puedo pagar herramientas profesionales de calidad' },
+                    { value: 8, label: 'Profesional', icon: '👔', text: '$250-500 USD/mes - Busco herramientas premium y especializadas' },
+                    { value: 10, label: 'Ilimitado', icon: '👑', text: '$500+ USD/mes - Quiero lo mejor del mercado sin importar el costo' }
+                ]
+            },
+
+            // FAMILIARIDAD CON IA (5 × 10 = 50 puntos)
+            {
+                id: 6,
+                category: 'ai-familiarity',
+                section: 'Familiaridad con IA',
+                question: '¿Qué tan familiarizado estás con herramientas de Inteligencia Artificial?',
+                subtitle: 'Queremos saber tu experiencia actual con IA',
+                options: [
+                    { value: 2, label: 'Nunca he usado', icon: '🌱', text: 'No he usado ninguna herramienta de IA, apenas conozco el concepto' },
+                    { value: 4, label: 'Principiante', icon: '📱', text: 'He probado ChatGPT una o dos veces pero no lo uso regularmente' },
+                    { value: 6, label: 'Uso Ocasional', icon: '💻', text: 'Uso ChatGPT u otra IA de vez en cuando para tareas puntuales' },
+                    { value: 8, label: 'Usuario Regular', icon: '🎯', text: 'Uso IA regularmente (varias veces por semana) para diferentes tareas' },
+                    { value: 10, label: 'Usuario Avanzado', icon: '🚀', text: 'Uso múltiples IAs diariamente, es parte esencial de mi trabajo' }
+                ]
+            },
+            {
+                id: 7,
+                category: 'ai-familiarity',
+                section: 'Familiaridad con IA',
+                question: '¿Cuántas herramientas de IA diferentes has utilizado?',
+                subtitle: 'Esto nos indica tu exposición al ecosistema de IA',
+                options: [
+                    { value: 2, label: 'Ninguna', icon: '❌', text: 'No he utilizado ninguna herramienta de IA todavía' },
+                    { value: 4, label: 'Solo 1', icon: '1️⃣', text: 'Solo he usado una herramienta de IA (probablemente ChatGPT)' },
+                    { value: 6, label: '2-3 herramientas', icon: '2️⃣', text: 'He probado 2 o 3 herramientas diferentes de IA' },
+                    { value: 8, label: '4-6 herramientas', icon: '🎯', text: 'Tengo experiencia con 4 a 6 herramientas de IA diferentes' },
+                    { value: 10, label: '7+ herramientas', icon: '🌟', text: 'He usado 7 o más herramientas de IA, conozco el ecosistema' }
+                ]
+            },
+            {
+                id: 8,
+                category: 'ai-familiarity',
+                section: 'Familiaridad con IA',
+                question: '¿Qué tan cómodo te sientes escribiendo prompts (instrucciones) para IA?',
+                subtitle: 'El prompting efectivo es clave para aprovechar la IA',
+                options: [
+                    { value: 2, label: 'Muy Incómodo', icon: '😰', text: 'No sé cómo escribir buenos prompts, obtengo resultados malos' },
+                    { value: 4, label: 'Inseguro', icon: '😕', text: 'Escribo prompts básicos pero siento que no saco el máximo provecho' },
+                    { value: 6, label: 'Aceptable', icon: '🙂', text: 'Escribo prompts decentes, a veces obtengo buenos resultados' },
+                    { value: 8, label: 'Competente', icon: '😊', text: 'Sé escribir buenos prompts y casi siempre obtengo lo que necesito' },
+                    { value: 10, label: 'Experto', icon: '🎓', text: 'Domino el arte del prompting, uso técnicas avanzadas y obtengo resultados excelentes' }
+                ]
+            },
+            {
+                id: 9,
+                category: 'ai-familiarity',
+                section: 'Familiaridad con IA',
+                question: '¿Con qué frecuencia utilizas IA en tu trabajo o estudios?',
+                subtitle: 'La consistencia en el uso indica tu nivel de integración',
+                options: [
+                    { value: 2, label: 'Nunca', icon: '⏹️', text: 'No he integrado IA en mi trabajo o estudios aún' },
+                    { value: 4, label: 'Raramente', icon: '🌙', text: 'Menos de una vez por semana, solo en ocasiones muy específicas' },
+                    { value: 6, label: 'Semanalmente', icon: '📅', text: '1-3 veces por semana para tareas específicas' },
+                    { value: 8, label: 'Diariamente', icon: '☀️', text: 'Uso IA casi todos los días para diversas tareas' },
+                    { value: 10, label: 'Constantemente', icon: '⚡', text: 'IA es parte integral de mi flujo de trabajo, la uso múltiples veces al día' }
+                ]
+            },
+            {
+                id: 10,
+                category: 'ai-familiarity',
+                section: 'Familiaridad con IA',
+                question: '¿Qué nivel de conocimiento tienes sobre las capacidades y limitaciones de la IA?',
+                subtitle: 'Entender qué puede y no puede hacer la IA es fundamental',
+                options: [
+                    { value: 2, label: 'Muy Básico', icon: '🌱', text: 'No tengo claro qué puede hacer la IA y qué limitaciones tiene' },
+                    { value: 4, label: 'Básico', icon: '📚', text: 'Sé algunas cosas que puede hacer pero me sorprendo frecuentemente' },
+                    { value: 6, label: 'Intermedio', icon: '🎯', text: 'Entiendo bien para qué tareas es útil la IA y para cuáles no' },
+                    { value: 8, label: 'Avanzado', icon: '🔬', text: 'Conozco en detalle capacidades y limitaciones de diferentes IAs' },
+                    { value: 10, label: 'Experto', icon: '🏆', text: 'Domino el panorama completo de IA, sé exactamente qué herramienta usar para cada caso' }
+                ]
+            },
+
+            // DOLOR/NECESIDAD/URGENCIA (5 × 20 = 100 puntos)
+            {
+                id: 11,
+                category: 'pain',
+                section: 'Necesidad & Urgencia',
+                question: '¿Cuál es tu MAYOR problema o dolor en este momento?',
+                subtitle: 'Identifiquemos el obstáculo principal que enfrentas',
+                options: [
+                    { value: 4, label: 'Falta de Tiempo', icon: '⏰', text: 'No me alcanza el tiempo, estoy completamente saturado de tareas' },
+                    { value: 8, label: 'Bajo Rendimiento', icon: '📉', text: 'Mis resultados no son suficientes, necesito ser más productivo' },
+                    { value: 12, label: 'Quedándome Atrás', icon: '🐌', text: 'Siento que la competencia me está superando, necesito actualizarme' },
+                    { value: 16, label: 'No puedo Escalar', icon: '🚧', text: 'Quiero crecer pero estoy estancado, no puedo manejar más volumen' },
+                    { value: 20, label: 'Crisis Urgente', icon: '🚨', text: 'Tengo una necesidad crítica AHORA, podría perder clientes/oportunidades' }
+                ]
+            },
+            {
+                id: 12,
+                category: 'pain',
+                section: 'Necesidad & Urgencia',
+                question: '¿Qué tan urgente es para ti implementar soluciones de IA?',
+                subtitle: 'Esto nos ayuda a priorizar tus próximos pasos',
+                options: [
+                    { value: 4, label: 'Exploratorio', icon: '🔍', text: 'Solo estoy investigando, no tengo prisa, es curiosidad' },
+                    { value: 8, label: 'Planeando', icon: '📅', text: 'Quiero implementar en los próximos 3-6 meses gradualmente' },
+                    { value: 12, label: 'Próximamente', icon: '⏰', text: 'Necesito empezar en las próximas 2-4 semanas' },
+                    { value: 16, label: 'Urgente', icon: '⚡', text: 'Necesito soluciones en los próximos 7 días' },
+                    { value: 20, label: 'Crítico', icon: '🚨', text: 'Es URGENTE, necesito ayuda YA, es crítico para mi negocio' }
+                ]
+            },
+            {
+                id: 13,
+                category: 'pain',
+                section: 'Necesidad & Urgencia',
+                question: '¿Qué está en riesgo si no resuelves esto pronto?',
+                subtitle: 'Entendamos el impacto real de no actuar',
+                options: [
+                    { value: 4, label: 'Nada crítico', icon: '😌', text: 'No hay riesgo inmediato, es más por mejorar y optimizar' },
+                    { value: 8, label: 'Oportunidades perdidas', icon: '🎯', text: 'Estoy dejando pasar oportunidades de crecimiento' },
+                    { value: 12, label: 'Pérdida competitiva', icon: '📉', text: 'La competencia me está ganando terreno, pierdo posicionamiento' },
+                    { value: 16, label: 'Pérdida de ingresos', icon: '💰', text: 'Estoy perdiendo dinero o clientes por no ser eficiente' },
+                    { value: 20, label: 'Riesgo de cierre', icon: '🚨', text: 'Mi negocio/proyecto podría fracasar si no resuelvo esto pronto' }
+                ]
+            },
+            {
+                id: 14,
+                category: 'pain',
+                section: 'Necesidad & Urgencia',
+                question: '¿Cómo afecta tu situación actual tu calidad de vida o bienestar?',
+                subtitle: 'El impacto personal también importa',
+                options: [
+                    { value: 4, label: 'Sin impacto', icon: '😊', text: 'Estoy bien, solo busco optimizar y ser más eficiente' },
+                    { value: 8, label: 'Algo de estrés', icon: '😐', text: 'Siento algo de presión pero es manejable' },
+                    { value: 12, label: 'Estrés frecuente', icon: '😰', text: 'Me genera estrés constante, afecta mi día a día' },
+                    { value: 16, label: 'Burnout cercano', icon: '😫', text: 'Estoy al límite, exhausto, trabajando demasiadas horas' },
+                    { value: 20, label: 'Burnout total', icon: '😭', text: 'Estoy quemado completamente, afecta mi salud y relaciones' }
+                ]
+            },
+            {
+                id: 15,
+                category: 'pain',
+                section: 'Necesidad & Urgencia',
+                question: '¿Qué tipo de apoyo necesitas para implementar soluciones de IA?',
+                subtitle: 'Esto define el nivel de acompañamiento ideal',
+                options: [
+                    { value: 4, label: 'Autodidacta', icon: '📚', text: 'Solo necesito recursos, puedo aprender solo' },
+                    { value: 8, label: 'Guías básicas', icon: '🗺️', text: 'Necesito documentación clara y tutoriales bien explicados' },
+                    { value: 12, label: 'Algo de mentoría', icon: '🤝', text: 'Quiero sesiones ocasionales de mentoría y seguimiento' },
+                    { value: 16, label: 'Acompañamiento', icon: '👨‍🏫', text: 'Necesito mentoría continua y apoyo constante' },
+                    { value: 20, label: 'Implementación completa', icon: '👨‍💼', text: 'Necesito que me ayuden hands-on a implementar TODO desde cero' }
+                ]
+            }
+        ];
+
+        // COMPONENTE APP
+        const App = () => {
+            const [currentStep, setCurrentStep] = useState('register');
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [answers, setAnswers] = useState({});
+            const [results, setResults] = useState(null);
+            const [userInfo, setUserInfo] = useState({
+                nombre: '',
+                correo: '',
+                celular: '',
+                empresa: '',
+                cargo: ''
+            });
+
+            const handleUserInfoChange = (field, value) => {
+                setUserInfo(prev => ({
+                    ...prev,
+                    [field]: value
+                }));
+            };
+
+            const validateUserInfo = () => {
+                if (!userInfo.nombre || !userInfo.correo || !userInfo.celular) {
+                    alert('⚠️ Por favor completa los campos obligatorios: Nombre, Correo y Celular');
+                    return false;
+                }
+                
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(userInfo.correo)) {
+                    alert('⚠️ Por favor ingresa un correo válido');
+                    return false;
+                }
+                
+                return true;
+            };
+
+            const handleAnswer = (questionId, value) => {
+                setAnswers(prev => ({
+                    ...prev,
+                    [questionId]: value
+                }));
+            };
+
+            const nextQuestion = () => {
+                if (currentQuestion < questions.length - 1) {
+                    setCurrentQuestion(prev => prev + 1);
+                } else {
+                    setCurrentStep('loading');
+                    setTimeout(async () => {
+                        await calculateResults();
+                        setCurrentStep('results');
+                    }, 2500);
+                }
+            };
+
+            const prevQuestion = () => {
+                if (currentQuestion > 0) {
+                    setCurrentQuestion(prev => prev - 1);
+                }
+            };
+
+            const calculateResults = async () => {
+                const maturityQuestions = questions.filter(q => q.category === 'maturity');
+                const aiQuestions = questions.filter(q => q.category === 'ai-familiarity');
+                const painQuestions = questions.filter(q => q.category === 'pain');
+
+                const maturityScore = maturityQuestions.reduce((sum, q) => sum + (answers[q.id] || 0), 0);
+                const aiScore = aiQuestions.reduce((sum, q) => sum + (answers[q.id] || 0), 0);
+                const painScore = painQuestions.reduce((sum, q) => sum + (answers[q.id] || 0), 0);
+
+                const totalMaturityScore = maturityScore + aiScore;
+                const urgencyScore = painScore;
+
+                let maturityLevel, urgencyLevel;
+
+                if (totalMaturityScore <= 20) maturityLevel = 'Principiante';
+                else if (totalMaturityScore <= 40) maturityLevel = 'Básico';
+                else if (totalMaturityScore <= 60) maturityLevel = 'Intermedio';
+                else if (totalMaturityScore <= 80) maturityLevel = 'Avanzado';
+                else maturityLevel = 'Experto';
+
+                if (urgencyScore <= 20) urgencyLevel = 'Exploratorio - Sin prisa';
+                else if (urgencyScore <= 40) urgencyLevel = 'Moderado - Planificando';
+                else if (urgencyScore <= 60) urgencyLevel = 'Importante - Próximamente';
+                else if (urgencyScore <= 80) urgencyLevel = 'Urgente - Acción ya';
+                else urgencyLevel = 'CRÍTICO - Necesita ayuda inmediata';
+
+                const resultados = {
+                    maturityScore: totalMaturityScore,
+                    maturityLevel,
+                    urgencyScore,
+                    urgencyLevel
+                };
+
+                setResults(resultados);
+
+                // ENVIAR A GOOGLE SHEETS
+                await enviarAGoogleSheets(userInfo, answers, resultados);
+            };
+
+            const restartQuiz = () => {
+                setCurrentStep('register');
+                setCurrentQuestion(0);
+                setAnswers({});
+                setResults(null);
+                setUserInfo({
+                    nombre: '',
+                    correo: '',
+                    celular: '',
+                    empresa: '',
+                    cargo: ''
+                });
+            };
+
+            const currentQ = questions[currentQuestion];
+            const progress = currentStep === 'questions' ? ((currentQuestion + 1) / questions.length) * 100 : 0;
+            const isAnswered = currentQ ? answers[currentQ.id] !== undefined : false;
+
+            const radius = 70;
+            const circumference = 2 * Math.PI * radius;
+            const progressOffset = circumference - (progress / 100) * circumference;
+
+            const scoreRadius = 100;
+            const scoreCircumference = 2 * Math.PI * scoreRadius;
+
+            return (
+                <div className="app-container">
+                    <div className="header">
+                        <div className="logo-container">
+                            <div className="logo-3d">🤖</div>
+                        </div>
+                        <h1 className="main-title">Diagnóstico IA 360°</h1>
+                        <p className="subtitle">Tu Evaluación Personalizada de Madurez Digital</p>
+                        <p className="creator-tag">Desarrollado por el Ing. Jorge Hugo Pérez para IA LABS<br/>una división de ICONE Academy</p>
+                    </div>
+
+                    <div className="glass-card">
+                        {/* REGISTRO */}
+                        {currentStep === 'register' && (
+                            <div className="welcome-screen">
+                                <div className="welcome-visual">👤</div>
+                                <h2 className="welcome-title">Primero, preséntate</h2>
+                                <p className="welcome-text">
+                                    Para poder enviarte tu informe personalizado y darte seguimiento
+                                </p>
+
+                                <div className="form-container">
+                                    <label className="form-label">Nombre Completo *</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={userInfo.nombre}
+                                        onChange={(e) => handleUserInfoChange('nombre', e.target.value)}
+                                        placeholder="Juan Pérez García"
+                                    />
+
+                                    <label className="form-label">Correo Electrónico *</label>
+                                    <input
+                                        type="email"
+                                        className="form-input"
+                                        value={userInfo.correo}
+                                        onChange={(e) => handleUserInfoChange('correo', e.target.value)}
+                                        placeholder="juan@empresa.com"
+                                    />
+
+                                    <label className="form-label">Celular / WhatsApp *</label>
+                                    <input
+                                        type="tel"
+                                        className="form-input"
+                                        value={userInfo.celular}
+                                        onChange={(e) => handleUserInfoChange('celular', e.target.value)}
+                                        placeholder="+57 315 8940980"
+                                    />
+
+                                    <label className="form-label">Empresa (opcional)</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={userInfo.empresa}
+                                        onChange={(e) => handleUserInfoChange('empresa', e.target.value)}
+                                        placeholder="ICONE Academy"
+                                    />
+
+                                    <label className="form-label">Cargo (opcional)</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={userInfo.cargo}
+                                        onChange={(e) => handleUserInfoChange('cargo', e.target.value)}
+                                        placeholder="Gerente de Innovación"
+                                    />
+
+                                    <button 
+                                        className="btn-holographic"
+                                        onClick={() => {
+                                            if (validateUserInfo()) {
+                                                setCurrentStep('welcome');
+                                            }
+                                        }}
+                                    >
+                                        Continuar al Diagnóstico →
+                                    </button>
+                                    
+                                    <p className="form-note">
+                                        * Campos obligatorios<br/>
+                                        Tus datos están protegidos y solo se usan para enviarte tu evaluación personalizada.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* BIENVENIDA */}
+                        {currentStep === 'welcome' && (
+                            <div className="welcome-screen">
+                                <div className="welcome-visual">🎯</div>
+                                <h2 className="welcome-title">Descubre tu Nivel de Madurez Digital</h2>
+                                <p className="welcome-text">
+                                    En solo 5 minutos obtendrás dos evaluaciones profesionales:<br/>
+                                    <strong>1) Tu Madurez Digital (0-100 puntos)</strong><br/>
+                                    <strong>2) Tu Nivel de Urgencia (0-100 puntos)</strong><br/>
+                                    Más los 2 pasos exactos que debes dar ahora.
+                                </p>
+
+                                <div className="feature-grid">
+                                    <div className="feature-card">
+                                        <div className="feature-icon">⚡</div>
+                                        <div className="feature-title">5 Minutos</div>
+                                        <div className="feature-desc">Rápido y preciso</div>
+                                    </div>
+                                    <div className="feature-card">
+                                        <div className="feature-icon">📊</div>
+                                        <div className="feature-title">15 Preguntas</div>
+                                        <div className="feature-desc">Evaluación completa</div>
+                                    </div>
+                                    <div className="feature-card">
+                                        <div className="feature-icon">🎯</div>
+                                        <div className="feature-title">2 Scores</div>
+                                        <div className="feature-desc">Madurez + Urgencia</div>
+                                    </div>
+                                    <div className="feature-card">
+                                        <div className="feature-icon">🚀</div>
+                                        <div className="feature-title">Plan Acción</div>
+                                        <div className="feature-desc">Próximos pasos</div>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    className="btn-holographic" 
+                                    onClick={() => setCurrentStep('questions')}
+                                    style={{maxWidth: '400px', margin: '2rem auto 0'}}
+                                >
+                                    Comenzar Evaluación →
+                                </button>
+                            </div>
+                        )}
+
+                        {/* PREGUNTAS */}
+                        {currentStep === 'questions' && currentQ && (
+                            <>
+                                <div className="progress-container">
+                                    <div className="progress-ring">
+                                        <svg width="100%" height="100%" viewBox="0 0 180 180">
+                                            <defs>
+                                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#1ac8db" />
+                                                    <stop offset="100%" stopColor="#147e93" />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle
+                                                fill="none"
+                                                stroke="rgba(26, 200, 219, 0.1)"
+                                                strokeWidth="8"
+                                                cx="90"
+                                                cy="90"
+                                                r={radius}
+                                            />
+                                            <circle
+                                                fill="none"
+                                                stroke="url(#gradient)"
+                                                strokeWidth="8"
+                                                strokeLinecap="round"
+                                                cx="90"
+                                                cy="90"
+                                                r={radius}
+                                                strokeDasharray={circumference}
+                                                strokeDashoffset={progressOffset}
+                                                style={{transition: 'stroke-dashoffset 0.5s ease'}}
+                                            />
+                                        </svg>
+                                        <div className="progress-text">{currentQuestion + 1}/{questions.length}</div>
+                                    </div>
+                                    <div className="progress-label">{currentQ.section}</div>
+                                </div>
+
+                                <div className="question-card">
+                                    <div className="question-badge">
+                                        {currentQ.category === 'maturity' && '🔧 Madurez Digital'}
+                                        {currentQ.category === 'ai-familiarity' && '🤖 Familiaridad IA'}
+                                        {currentQ.category === 'pain' && '💡 Necesidad & Urgencia'}
+                                    </div>
+                                    <h2 className="question-title">{currentQ.question}</h2>
+                                    <p className="question-subtitle">{currentQ.subtitle}</p>
+
+                                    <div className="options-grid">
+                                        {currentQ.options.map((option) => (
+                                            <div 
+                                                key={option.value}
+                                                className={`option-modern ${answers[currentQ.id] === option.value ? 'selected' : ''}`}
+                                                onClick={() => handleAnswer(currentQ.id, option.value)}
+                                            >
+                                                <span className="option-icon">{option.icon}</span>
+                                                <div className="option-content">
+                                                    <span className="option-label">{option.label}</span>
+                                                    <div className="option-text">{option.text}</div>
+                                                </div>
+                                                <div className="option-check"></div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="button-group">
+                                        <button 
+                                            className="btn-holographic btn-secondary" 
+                                            onClick={prevQuestion}
+                                            disabled={currentQuestion === 0}
+                                        >
+                                            ← Anterior
+                                        </button>
+                                        <button 
+                                            className="btn-holographic" 
+                                            onClick={nextQuestion}
+                                            disabled={!isAnswered}
+                                        >
+                                            {currentQuestion === questions.length - 1 ? 'Ver Resultados 🎉' : 'Siguiente →'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* LOADING */}
+                        {currentStep === 'loading' && (
+                            <div className="loading-premium">
+                                <div className="loading-orb"></div>
+                                <p className="loading-text">Analizando tus respuestas...</p>
+                                <p className="loading-subtext">Generando tu evaluación personalizada</p>
+                            </div>
+                        )}
+
+                        {/* RESULTADOS */}
+                        {currentStep === 'results' && results && (
+                            <div className="results-screen">
+                                <div className="score-section">
+                                    <h3 style={{fontSize: 'clamp(1.3rem, 3vw, 2rem)', fontWeight: '800', textAlign: 'center', marginBottom: '2rem'}}>
+                                        📊 Tu Madurez Digital
+                                    </h3>
+                                    <div className="score-circle">
+                                        <svg width="100%" height="100%" viewBox="0 0 280 280">
+                                            <defs>
+                                                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#1ac8db" />
+                                                    <stop offset="100%" stopColor="#147e93" />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle
+                                                fill="none"
+                                                stroke="rgba(26, 200, 219, 0.1)"
+                                                strokeWidth="12"
+                                                cx="140"
+                                                cy="140"
+                                                r={scoreRadius}
+                                            />
+                                            <circle
+                                                fill="none"
+                                                stroke="url(#scoreGradient)"
+                                                strokeWidth="12"
+                                                strokeLinecap="round"
+                                                cx="140"
+                                                cy="140"
+                                                r={scoreRadius}
+                                                strokeDasharray={scoreCircumference}
+                                                strokeDashoffset={scoreCircumference - (results.maturityScore / 100) * scoreCircumference}
+                                                transform="rotate(-90 140 140)"
+                                                style={{transition: 'stroke-dashoffset 1s ease'}}
+                                            />
+                                        </svg>
+                                        <div className="score-value-large">{results.maturityScore}</div>
+                                        <div className="score-label">/100 puntos</div>
+                                    </div>
+                                    <div className="level-badge">{results.maturityLevel}</div>
+                                </div>
+
+                                <div className="urgency-banner">
+                                    <h3 className="urgency-title">⚡ Nivel de Necesidad de Ayuda</h3>
+                                    <div className="urgency-score">{results.urgencyScore}/100</div>
+                                    <div className="urgency-text">
+                                        <strong>{results.urgencyLevel}</strong><br/>
+                                        {results.urgencyScore >= 80 && 'Necesitas ayuda URGENTE. Tu situación requiere atención inmediata.'}
+                                        {results.urgencyScore >= 60 && results.urgencyScore < 80 && 'Tu situación es importante y deberías actuar pronto.'}
+                                        {results.urgencyScore >= 40 && results.urgencyScore < 60 && 'Tienes una necesidad moderada, es buen momento para actuar.'}
+                                        {results.urgencyScore >= 20 && results.urgencyScore < 40 && 'Estás en fase de planeación, puedes implementar gradualmente.'}
+                                        {results.urgencyScore < 20 && 'Estás explorando sin prisa, tienes tiempo para investigar.'}
+                                    </div>
+                                </div>
+
+                                <div className="next-steps-card">
+                                    <h3 className="next-steps-title">🎯 Tus 2 Próximos Pasos</h3>
+                                    
+                                    <div className="step-item">
+                                        <span className="step-number">1</span>
+                                        <div className="step-content">
+                                            <strong>Paso 1: {results.maturityScore <= 40 ? 'Comienza con lo Básico' : results.maturityScore <= 70 ? 'Optimiza tu Stack Actual' : 'Lleva tu Expertise al Siguiente Nivel'}</strong><br/>
+                                            {results.maturityScore <= 40 && 'Empieza con ChatGPT Plus ($20/mes) y NotebookLM (gratis). Estas dos herramientas te darán una base sólida. Dedica 30 minutos diarios durante una semana a experimentar con prompts básicos.'}
+                                            {results.maturityScore > 40 && results.maturityScore <= 70 && 'Ya tienes bases, ahora profundiza. Añade Claude Sonnet 4.5 para análisis avanzado y Perplexity Pro para research. Implementa 3 automatizaciones específicas en tu flujo de trabajo esta semana.'}
+                                            {results.maturityScore > 70 && 'Tu nivel es avanzado. Enfócate en integrar múltiples IAs en workflows complejos. Considera GLM-4.7 para coding agéntico y crea tu propio stack personalizado. Documenta tus mejores prácticas para escalar tu conocimiento.'}
+                                        </div>
+                                    </div>
+
+                                    <div className="step-item">
+                                        <span className="step-number">2</span>
+                                        <div className="step-content">
+                                            <strong>Paso 2: {results.urgencyScore >= 60 ? 'Agenda Mentoría de Urgencia' : results.urgencyScore >= 40 ? 'Planifica tu Implementación' : 'Investiga y Aprende'}</strong><br/>
+                                            {results.urgencyScore >= 60 && 'Tu situación requiere atención inmediata. Agenda una Mentoría de Iniciación conmigo para implementar soluciones rápidas esta misma semana. Te ayudaré hands-on a resolver tus pain points críticos.'}
+                                            {results.urgencyScore >= 40 && results.urgencyScore < 60 && 'Crea un plan de implementación de 30 días. Define 3 procesos clave que quieres optimizar con IA y agenda una sesión de mentoría para crear tu roadmap personalizado.'}
+                                            {results.urgencyScore < 40 && 'Tienes tiempo para investigar. Únete a la comunidad de IA LABS, consume contenido educativo y cuando estés listo, agenda una sesión de orientación para definir tu camino óptimo.'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="cta-premium">
+                                    <h3 className="cta-title">🚀 ¿Listo para Dar el Siguiente Paso?</h3>
+                                    <p className="cta-text">
+                                        Agenda tu <strong>Mentoría de Iniciación</strong> y te ayudaré personalmente a implementar 
+                                        las soluciones exactas que necesitas según tu perfil. Configuración, estrategia, 
+                                        prompts optimizados y acompañamiento continuo.
+                                    </p>
+
+                                    <div className="button-group">
+                                        <a 
+                                            href="https://wa.me/573158940980?text=Hola Jorge! Completé el Diagnóstico IA 360° y quiero agendar mi Mentoría de Iniciación"
+                                            className="btn-holographic"
+                                            target="_blank"
+                                            rel="noopener"
+                                            style={{textDecoration: 'none', textAlign: 'center', display: 'block'}}
+                                        >
+                                            📱 Agendar Mentoría Ahora
+                                        </a>
+                                        <button className="btn-holographic btn-secondary" onClick={restartQuiz}>
+                                            🔄 Hacer Nuevo Diagnóstico
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="footer">
+                        Desarrollado por el Ing. Jorge Hugo Pérez | IA LABS - División de ICONE Academy<br/>
+                        📧 jorgehugoperez@iconeacademy.com | 📱 +57 315 8940980
+                    </div>
+                </div>
+            );
+        };
+
+        // RENDER CON REACT 18 - MÉTODO CORRECTO
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
