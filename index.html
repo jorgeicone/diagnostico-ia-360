@@ -921,12 +921,9 @@
         const { useState } = React;
 
         // ⚙️ CONFIGURACIÓN GOOGLE SHEETS - URL ACTUALIZADA ✅
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxI6f3yGP0xA7hpYRRgKNv4i9XRJpGeQzfZQjUyPO64StbbHeJrlu-fXoS8SqxRDKnt/exec';
-        // Función para enviar datos a Google Sheets
         async function enviarAGoogleSheets(datosUsuario, respuestas, resultados) {
             const payload = {
-                nombre: datosUsuario.nombre,
-                correo: datosUsuario.correo,
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwb9dFizFYAhBKcfeEg-0Hyr4abMe9eF9aPT_g9mAnEEvNC99EXhMp2tosu0CXrbNFi/exec';                correo: datosUsuario.correo,
                 celular: datosUsuario.celular,
                 empresa: datosUsuario.empresa,
                 cargo: datosUsuario.cargo,
